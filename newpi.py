@@ -1,42 +1,23 @@
 from decimal import Decimal, getcontext
+import time
 import colorama
-from colorama import Fore, Style
 
-colorama.init()  # Initialize colorama for cross-platform colored output
+# Set the precision for calculations
+getcontext().prec = 20000
 
-# Define RGB values for custom colors
-custom_colors = [
-    (255, 0, 0),    # RED
-    (255, 165, 0),  # ORANGE
-    (255, 255, 0),  # YELLOW
-    (0, 255, 0),    # LIME
-    (0, 0, 255),    # BLUE
-    (128, 0, 128),  # PURPLE
-    (0, 128, 128),  # TEAL
-    (255, 192, 203),# PINK
-    (255, 99, 71),  # TOMATO
-    (255, 69, 0),   # RED-ORANGE
-    (0, 128, 0),    # GREEN
-    (255, 0, 255),  # MAGENTA
-    (173, 216, 230),# LIGHT BLUE
-    (255, 255, 255),# WHITE
-    (128, 128, 0),  # OLIVE
-    (0, 128, 128),  # BLUE-GREEN
-    (255, 69, 0),   # RED-ORANGE
-    (255, 215, 0),  # GOLD
-    (218, 112, 214),# ORCHID
-    (0, 255, 255),  # CYAN
-    (0, 255, 0)     # LIME
+# Define colors
+colors = [
+    colorama.Fore.RED,
+    colorama.Fore.LIGHTYELLOW_EX,
+    colorama.Fore.LIGHTGREEN_EX,
+    colorama.Fore.LIGHTBLUE_EX,
+    colorama.Fore.MAGENTA,
+    colorama.Fore.LIGHTCYAN_EX,
 ]
 
-def rgb_to_ansi(r, g, b):
-    # Convert RGB color values to ANSI escape sequences
-    return f"\033[38;2;{r};{g};{b}m"
-
-def calculate_pi():
-    getcontext().prec = 20000  # Set precision for calculations
-
+def calculate_and_print_pi():
     pi = Decimal(0)
+    color_index = 0  # Index to iterate through colors
     for k in range(20000):
         pi += (Decimal(1) / 16 ** k) * (
             Decimal(4) / (8 * k + 1) - Decimal(2) / (8 * k + 4) - Decimal(1) / (8 * k + 5) - Decimal(1) / (8 * k + 6)
@@ -45,21 +26,24 @@ def calculate_pi():
         temp_pi = str(pi * Decimal(10 ** 20000))
         digit = int(temp_pi.split('.')[1][k])
 
-        # Select color for the digit based on the index of the color list
-        color_index = k % len(custom_colors)
-        color = custom_colors[color_index]
-        
-        # Convert RGB color values to ANSI escape sequences for color display
-        ansi_color = rgb_to_ansi(*color)
-        print(f"{ansi_color}{digit}", end='', flush=True)
-    
-    print(Style.RESET_ALL)  # Reset color to default after printing all digits
+        color = colors[color_index]  # Use the current color
+        print(color + str(digit), end='', flush=True)
+        time.sleep(0.001)  # Adjust the delay to control the printing speed
+
+        color_index = (color_index + 1) % len(colors)  # Move to the next color
 
     return pi
 
-if __name__ == "__main__":
+def main():
+    colorama.init()
+
     print("Pi calculated so far: 3.", end="")
-    pi = calculate_pi()
+    pi = calculate_and_print_pi()
 
     print("\nFinal Pi generated up to 20,000 decimal places:")
     print(pi)
+
+    colorama.deinit()
+
+if __name__ == "__main__":
+    main()
